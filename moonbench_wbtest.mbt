@@ -10,3 +10,10 @@ test "positive_delta clamps reversed timestamps" {
   inspect(positive_delta(5, 10), content="0")
   inspect(positive_delta(12, 10), content="2")
 }
+
+test "runner count clamps are predictable" {
+  inspect(clamp_non_negative(-1), content="0")
+  inspect(clamp_non_negative(2), content="2")
+  inspect(clamp_positive(0), content="1")
+  inspect(clamp_positive(3), content="3")
+}

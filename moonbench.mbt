@@ -131,3 +131,59 @@ fn positive_delta(now_us : Int, then_us : Int) -> Int {
     0
   }
 }
+
+/// A named benchmark result.
+pub(all) struct BenchmarkResult {
+  name : String
+  warmup : Int
+  iterations : Int
+  samples_us : Array[Double]
+  stats : SampleStats
+} derive(Eq, Debug)
+
+/// Configuration for repeatable benchmark runs.
+pub(all) struct BenchmarkRunner {
+  warmup : Int
+  iterations : Int
+} derive(Eq, Debug)
+
+/// Create a benchmark runner.
+pub fn BenchmarkRunner::new(warmup? : Int = 1, iterations? : Int = 10) -> BenchmarkRunner {
+  {
+    warmup: clamp_non_negative(warmup),
+    iterations: clamp_positive(iterations),
+  }
+}
+
+/// Run a measurement function and summarize the returned microsecond samples.
+pub fn BenchmarkRunner::run(
+  self : BenchmarkRunner,
+  name : String,
+  measure : () -> Double,
+) -> BenchmarkResult {
+  for _ in 0..<self.warmup {
+    ignore(measure())
+  }
+  let samples : Array[Double] = []
+  for _ in 0..<self.iterations {
+    samples.push(measure())
+  }
+  let stats = SampleStats::from_samples(samples)
+  { name, warmup: self.warmup, iterations: self.iterations, samples_us: samples, stats }
+}
+
+fn clamp_non_negative(value : Int) -> Int {
+  if value < 0 {
+    0
+  } else {
+    value
+  }
+}
+
+fn clamp_positive(value : Int) -> Int {
+  if value < 1 {
+    1
+  } else {
+    value
+  }
+}
