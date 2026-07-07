@@ -10,6 +10,8 @@ for the 2026 MoonBit open-source ecosystem contest.
 - `SampleStats` summarizes benchmark samples.
 - `Stopwatch` models deterministic elapsed-time state.
 - `BenchmarkRunner` supports warmup and measured iterations.
+- `BenchmarkRunner::run_timed` measures real function bodies with MoonBit's
+  monotonic clock.
 - `BenchmarkResult` renders JSON and Markdown reports.
 - `BaselineComparison` compares current mean time with a baseline.
 - `cmd/main` and `examples/basic` provide runnable examples.
@@ -29,6 +31,7 @@ moon check
 moon test
 moon run cmd/main
 moon run examples/basic
+moon package
 ```
 
 ## Next Steps
