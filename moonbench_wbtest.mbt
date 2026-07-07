@@ -6,6 +6,13 @@ test "median averages the two middle items for even samples" {
   inspect(median([1.0, 2.0, 4.0, 9.0]), content="3")
 }
 
+test "nearest rank percentile clamps to valid samples" {
+  inspect(nearest_rank([1.0, 2.0, 3.0, 4.0, 5.0], 90), content="5")
+  inspect(nearest_rank([1.0, 2.0, 3.0, 4.0, 5.0], 50), content="3")
+  inspect(nearest_rank([1.0, 2.0, 3.0], 0), content="1")
+  inspect(nearest_rank([1.0, 2.0, 3.0], 120), content="3")
+}
+
 test "positive_delta clamps reversed timestamps" {
   inspect(positive_delta(5, 10), content="0")
   inspect(positive_delta(12, 10), content="2")

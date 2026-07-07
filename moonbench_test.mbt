@@ -5,6 +5,8 @@ test "SampleStats summarizes sorted and unsorted samples" {
   inspect(stats.max_us, content="10")
   inspect(stats.mean_us, content="7")
   inspect(stats.median_us, content="7")
+  inspect(stats.p90_us, content="10")
+  inspect(stats.p95_us, content="10")
 }
 
 test "SampleStats handles an empty sample list" {
@@ -14,6 +16,8 @@ test "SampleStats handles an empty sample list" {
   inspect(stats.max_us, content="0")
   inspect(stats.mean_us, content="0")
   inspect(stats.median_us, content="0")
+  inspect(stats.p90_us, content="0")
+  inspect(stats.p95_us, content="0")
   inspect(stats.stddev_us, content="0")
 }
 
@@ -79,6 +83,7 @@ test "BenchmarkResult renders JSON with stats" {
   inspect(json.contains("\"name\":\"json demo\""), content="true")
   inspect(json.contains("\"iterations\":2"), content="true")
   inspect(json.contains("\"mean_us\":7"), content="true")
+  inspect(json.contains("\"p95_us\":7"), content="true")
 }
 
 test "BenchmarkResult renders Markdown table" {
@@ -87,7 +92,7 @@ test "BenchmarkResult renders Markdown table" {
     () => 3.0,
   )
   let markdown = result.to_markdown()
-  inspect(markdown.contains("| name | count |"), content="true")
+  inspect(markdown.contains("| name | count | min_us | max_us | mean_us | median_us | p90_us | p95_us |"), content="true")
   inspect(markdown.contains("pipe \\| demo"), content="true")
 }
 
@@ -122,4 +127,62 @@ test "BaselineComparison renders Markdown" {
   let markdown = comparison.to_markdown()
   inspect(markdown.contains("pipe \\| compare"), content="true")
   inspect(markdown.contains("faster"), content="true")
+}
+
+test "BenchmarkSuite summarizes multiple results" {
+  let runner = @moonbench.BenchmarkRunner::new(warmup=0, iterations=2)
+  let fast = runner.run("fast", () => 10.0)
+  let slow = runner.run("slow", () => 30.0)
+  let suite = @moonbench.BenchmarkSuite::new(
+    title="demo suite",
+    package_name="Han-Wentao/moonbench",
+    package_version="0.2.0",
+    target="wasm-gc",
+  ).add(fast).add(slow)
+  inspect(suite.count(), content="2")
+  inspect(suite.total_iterations(), content="4")
+  inspect(suite.average_mean_us(), content="20")
+  inspect(suite.fastest_name(), content="fast")
+  inspect(suite.slowest_name(), content="slow")
+}
+
+test "BenchmarkSuite renders Markdown JSON and CSV" {
+  let result = @moonbench.BenchmarkRunner::new(warmup=0, iterations=2).run(
+    "csv, json | demo",
+    () => 12.0,
+  )
+  let suite = @moonbench.BenchmarkSuite::new(title="report").add(result)
+  let markdown = suite.to_markdown()
+  let json = suite.to_json()
+  let csv = suite.to_csv()
+  inspect(markdown.contains("## report"), content="true")
+  inspect(markdown.contains("csv, json \\| demo"), content="true")
+  inspect(json.contains("\"samples_us\":[12,12]"), content="true")
+  inspect(csv.contains("p90_us,p95_us"), content="true")
+  inspect(csv.contains("\"csv, json | demo\""), content="true")
+}
+
+test "BaselineSet compares suites and tracks missing baselines" {
+  let runner = @moonbench.BenchmarkRunner::new(warmup=0, iterations=1)
+  let suite = @moonbench.BenchmarkSuite::new()
+    .add(runner.run("fast", () => 80.0))
+    .add(runner.run("same", () => 101.0))
+    .add(runner.run("new", () => 50.0))
+  let baselines = @moonbench.BaselineSet::new()
+    .add("fast", 100.0)
+    .add("same", 100.0)
+  let report = baselines.compare_suite(suite, tolerance_pct=5.0)
+  inspect(report.summary.total, content="3")
+  inspect(report.summary.faster, content="1")
+  inspect(report.summary.stable, content="1")
+  inspect(report.summary.missing_baseline, content="1")
+  inspect(report.to_markdown().contains("missing_baseline"), content="true")
+  inspect(report.to_json().contains("\"faster\":1"), content="true")
+}
+
+test "benchmark name validation rejects empty and multiline names" {
+  inspect(@moonbench.validate_benchmark_name("").ok, content="false")
+  inspect(@moonbench.validate_benchmark_name("a\nb").ok, content="false")
+  inspect(@moonbench.validate_benchmark_name("ok").ok, content="true")
+  inspect(@moonbench.normalize_benchmark_name("a|b\nc"), content="a/b c")
 }
