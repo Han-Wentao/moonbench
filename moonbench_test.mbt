@@ -56,6 +56,20 @@ test "BenchmarkRunner clamps invalid counts" {
   inspect(runner.iterations, content="1")
 }
 
+test "BenchmarkRunner can time a function body" {
+  let mut value = 0
+  let result = @moonbench.BenchmarkRunner::new(warmup=1, iterations=2).run_timed(
+    "timed",
+    () => {
+      value = value + 1
+    },
+  )
+  inspect(value, content="3")
+  inspect(result.samples_us.length(), content="2")
+  inspect(result.stats.count, content="2")
+  inspect(result.stats.min_us >= 0.0, content="true")
+}
+
 test "BenchmarkResult renders JSON with stats" {
   let result = @moonbench.BenchmarkRunner::new(warmup=0, iterations=2).run(
     "json demo",

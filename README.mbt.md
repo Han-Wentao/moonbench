@@ -37,11 +37,11 @@ moon run examples/basic
 
 ```moonbit
 let mut sample = 0
-let result = @moonbench.BenchmarkRunner::new(warmup=1, iterations=3).run(
+let result = @moonbench.BenchmarkRunner::new(warmup=1, iterations=3).run_timed(
   "increment",
   () => {
     sample = sample + 10
-    sample.to_double()
+    ignore(sample)
   },
 )
 println(result.to_markdown())

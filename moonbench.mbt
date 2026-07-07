@@ -172,6 +172,19 @@ pub fn BenchmarkRunner::run(
   { name, warmup: self.warmup, iterations: self.iterations, samples_us: samples, stats }
 }
 
+/// Run and time a benchmark body with the monotonic clock.
+pub fn BenchmarkRunner::run_timed(
+  self : BenchmarkRunner,
+  name : String,
+  body : () -> Unit,
+) -> BenchmarkResult {
+  self.run(name, () => {
+    let started = @bench.monotonic_clock_start()
+    body()
+    @bench.monotonic_clock_end(started)
+  })
+}
+
 fn clamp_non_negative(value : Int) -> Int {
   if value < 0 {
     0
