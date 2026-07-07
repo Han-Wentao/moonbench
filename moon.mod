@@ -15,12 +15,12 @@ version = "0.1.0"
 
 readme = "README.mbt.md"
 
-repository = ""
+repository = "https://github.com/Han-Wentao/moonbench"
 
-license = "Apache-2.0"
+license = "MIT"
 
-keywords = []
+keywords = ["benchmark", "stopwatch", "report", "performance"]
 
 preferred_target = "wasm-gc"
 
-description = ""
+description = "A lightweight stopwatch, benchmark reporting, and baseline comparison toolkit for MoonBit projects."
