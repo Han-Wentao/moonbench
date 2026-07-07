@@ -76,3 +76,36 @@ test "BenchmarkResult renders Markdown table" {
   inspect(markdown.contains("| name | count |"), content="true")
   inspect(markdown.contains("pipe \\| demo"), content="true")
 }
+
+test "BenchmarkResult compares against a stable baseline" {
+  let result = @moonbench.BenchmarkRunner::new(warmup=0, iterations=2).run(
+    "stable",
+    () => 102.0,
+  )
+  let comparison = result.compare_baseline(100.0, tolerance_pct=5.0)
+  inspect(comparison.status, content="stable")
+  inspect(comparison.delta_pct, content="2")
+}
+
+test "BenchmarkResult marks faster and slower changes" {
+  let faster = @moonbench.BenchmarkRunner::new(warmup=0, iterations=1).run(
+    "fast",
+    () => 80.0,
+  ).compare_baseline(100.0, tolerance_pct=5.0)
+  let slower = @moonbench.BenchmarkRunner::new(warmup=0, iterations=1).run(
+    "slow",
+    () => 120.0,
+  ).compare_baseline(100.0, tolerance_pct=5.0)
+  inspect(faster.status, content="faster")
+  inspect(slower.status, content="slower")
+}
+
+test "BaselineComparison renders Markdown" {
+  let comparison = @moonbench.BenchmarkRunner::new(warmup=0, iterations=1).run(
+    "pipe | compare",
+    () => 90.0,
+  ).compare_baseline(100.0)
+  let markdown = comparison.to_markdown()
+  inspect(markdown.contains("pipe \\| compare"), content="true")
+  inspect(markdown.contains("faster"), content="true")
+}

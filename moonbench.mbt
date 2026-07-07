@@ -229,3 +229,47 @@ fn escape_json(value : String) -> String {
 fn escape_markdown(value : String) -> String {
   value.replace(old="|", new="\\|")
 }
+
+/// Comparison between a current benchmark and a baseline mean.
+pub(all) struct BaselineComparison {
+  name : String
+  baseline_mean_us : Double
+  current_mean_us : Double
+  delta_pct : Double
+  status : String
+} derive(Eq, Debug)
+
+/// Compare a result with a baseline mean in microseconds.
+pub fn BenchmarkResult::compare_baseline(
+  self : BenchmarkResult,
+  baseline_mean_us : Double,
+  tolerance_pct? : Double = 5.0,
+) -> BaselineComparison {
+  let delta_pct = if baseline_mean_us == 0.0 {
+    0.0
+  } else {
+    (self.stats.mean_us - baseline_mean_us) / baseline_mean_us * 100.0
+  }
+  let limit = tolerance_pct.abs()
+  let status = if delta_pct > limit {
+    "slower"
+  } else if delta_pct < 0.0 - limit {
+    "faster"
+  } else {
+    "stable"
+  }
+  {
+    name: self.name,
+    baseline_mean_us,
+    current_mean_us: self.stats.mean_us,
+    delta_pct,
+    status,
+  }
+}
+
+/// Render a baseline comparison as Markdown.
+pub fn BaselineComparison::to_markdown(self : BaselineComparison) -> String {
+  "| name | baseline_mean_us | current_mean_us | delta_pct | status |\n" +
+  "| --- | ---: | ---: | ---: | --- |\n" +
+  "| \{escape_markdown(self.name)} | \{self.baseline_mean_us} | \{self.current_mean_us} | \{self.delta_pct} | \{self.status} |\n"
+}
