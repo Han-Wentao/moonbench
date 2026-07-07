@@ -55,3 +55,24 @@ test "BenchmarkRunner clamps invalid counts" {
   inspect(runner.warmup, content="0")
   inspect(runner.iterations, content="1")
 }
+
+test "BenchmarkResult renders JSON with stats" {
+  let result = @moonbench.BenchmarkRunner::new(warmup=0, iterations=2).run(
+    "json demo",
+    () => 7.0,
+  )
+  let json = result.to_json()
+  inspect(json.contains("\"name\":\"json demo\""), content="true")
+  inspect(json.contains("\"iterations\":2"), content="true")
+  inspect(json.contains("\"mean_us\":7"), content="true")
+}
+
+test "BenchmarkResult renders Markdown table" {
+  let result = @moonbench.BenchmarkRunner::new(warmup=0, iterations=1).run(
+    "pipe | demo",
+    () => 3.0,
+  )
+  let markdown = result.to_markdown()
+  inspect(markdown.contains("| name | count |"), content="true")
+  inspect(markdown.contains("pipe \\| demo"), content="true")
+}

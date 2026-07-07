@@ -187,3 +187,45 @@ fn clamp_positive(value : Int) -> Int {
     value
   }
 }
+
+/// Render a benchmark result as compact JSON.
+pub fn BenchmarkResult::to_json(self : BenchmarkResult) -> String {
+  "{" +
+  "\"name\":\"\{escape_json(self.name)}\"," +
+  "\"warmup\":\{self.warmup}," +
+  "\"iterations\":\{self.iterations}," +
+  "\"stats\":\{self.stats.to_json()}" +
+  "}"
+}
+
+/// Render a benchmark result as a Markdown table.
+pub fn BenchmarkResult::to_markdown(self : BenchmarkResult) -> String {
+  "| name | count | min_us | max_us | mean_us | median_us | stddev_us |\n" +
+  "| --- | ---: | ---: | ---: | ---: | ---: | ---: |\n" +
+  self.to_markdown_row()
+}
+
+/// Render one Markdown table row for a benchmark result.
+pub fn BenchmarkResult::to_markdown_row(self : BenchmarkResult) -> String {
+  "| \{escape_markdown(self.name)} | \{self.stats.count} | \{self.stats.min_us} | \{self.stats.max_us} | \{self.stats.mean_us} | \{self.stats.median_us} | \{self.stats.stddev_us} |\n"
+}
+
+/// Render sample statistics as JSON.
+pub fn SampleStats::to_json(self : SampleStats) -> String {
+  "{" +
+  "\"count\":\{self.count}," +
+  "\"min_us\":\{self.min_us}," +
+  "\"max_us\":\{self.max_us}," +
+  "\"mean_us\":\{self.mean_us}," +
+  "\"median_us\":\{self.median_us}," +
+  "\"stddev_us\":\{self.stddev_us}" +
+  "}"
+}
+
+fn escape_json(value : String) -> String {
+  value.replace(old="\\", new="\\\\").replace(old="\"", new="\\\"")
+}
+
+fn escape_markdown(value : String) -> String {
+  value.replace(old="|", new="\\|")
+}

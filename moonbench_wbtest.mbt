@@ -17,3 +17,8 @@ test "runner count clamps are predictable" {
   inspect(clamp_positive(0), content="1")
   inspect(clamp_positive(3), content="3")
 }
+
+test "report escaping protects JSON and Markdown syntax" {
+  inspect(escape_json("a\"b\\c"), content="a\\\"b\\\\c")
+  inspect(escape_markdown("a|b"), content="a\\|b")
+}
