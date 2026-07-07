@@ -1,0 +1,7 @@
+// import {
+//   "Han-Wentao/moonbench" @lib,
+// }
+
+options(
+  "is-main": true,
+)
