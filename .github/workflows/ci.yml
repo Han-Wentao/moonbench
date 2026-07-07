@@ -27,3 +27,6 @@ jobs:
 
       - name: Run demo
         run: moon run cmd/main
+
+      - name: Run basic example
+        run: moon run examples/basic
