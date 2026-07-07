@@ -19,6 +19,12 @@ results with a baseline.
 
 ## Quick Start
 
+Add the published module:
+
+```powershell
+moon add Han-Wentao/moonbench
+```
+
 Run the bundled demo:
 
 ```powershell
@@ -54,6 +60,8 @@ MoonBench is an original MoonBit implementation. It does not port another
 benchmark library directly. The package is intentionally small, testable, and
 usable as an ecosystem utility for MoonBit library authors who need simple
 performance reports in README files, pull requests, or release notes.
+
+Package page: https://mooncakes.io/docs/Han-Wentao/moonbench
 
 ## License
 

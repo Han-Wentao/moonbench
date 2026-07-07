@@ -36,6 +36,6 @@ moon package
 
 ## Next Steps
 
-- Publish to mooncakes.io after account/package setup is confirmed.
+- Published package: https://mooncakes.io/docs/Han-Wentao/moonbench
 - Synchronize the repository to GitLink.
 - Attach this report or a PDF export during final work submission.

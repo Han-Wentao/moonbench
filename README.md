@@ -5,7 +5,8 @@ comparison toolkit for MoonBit projects.
 
 ## Status
 
-- MoonBit package: in development for OSC2026 MoonBit ecosystem contest.
+- MoonBit package: published on mooncakes.io as `Han-Wentao/moonbench`.
+- Package docs: https://mooncakes.io/docs/Han-Wentao/moonbench
 - Tests: `moon test`
 - Demo: `moon run cmd/main`
 - License: MIT
