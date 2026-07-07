@@ -58,3 +58,76 @@ fn median(sorted : Array[Double]) -> Double {
     (sorted[middle - 1] + sorted[middle]) / 2.0
   }
 }
+
+/// A pure stopwatch state measured in microseconds.
+pub(all) struct Stopwatch {
+  elapsed_us : Int
+  started_at_us : Int
+  running : Bool
+} derive(Eq, Debug)
+
+/// Create a stopped stopwatch with no elapsed time.
+pub fn Stopwatch::new() -> Stopwatch {
+  { elapsed_us: 0, started_at_us: 0, running: false }
+}
+
+/// Start the stopwatch at `now_us`.
+pub fn Stopwatch::start(self : Stopwatch, now_us : Int) -> Stopwatch {
+  if self.running {
+    self
+  } else {
+    { ..self, started_at_us: now_us, running: true }
+  }
+}
+
+/// Stop the stopwatch at `now_us`.
+pub fn Stopwatch::stop(self : Stopwatch, now_us : Int) -> Stopwatch {
+  if self.running {
+    {
+      elapsed_us: self.elapsed_us + positive_delta(now_us, self.started_at_us),
+      started_at_us: self.started_at_us,
+      running: false,
+    }
+  } else {
+    self
+  }
+}
+
+/// Reset elapsed time and return to the stopped state.
+pub fn Stopwatch::reset(_self : Stopwatch) -> Stopwatch {
+  Stopwatch::new()
+}
+
+/// Return elapsed microseconds at `now_us` without changing the state.
+pub fn Stopwatch::elapsed(self : Stopwatch, now_us : Int) -> Int {
+  if self.running {
+    self.elapsed_us + positive_delta(now_us, self.started_at_us)
+  } else {
+    self.elapsed_us
+  }
+}
+
+/// Record a lap at `now_us`, returning the lap duration and updated stopwatch.
+pub fn Stopwatch::lap(self : Stopwatch, now_us : Int) -> (Int, Stopwatch) {
+  if self.running {
+    let lap_us = positive_delta(now_us, self.started_at_us)
+    (
+      lap_us,
+      {
+        elapsed_us: self.elapsed_us + lap_us,
+        started_at_us: now_us,
+        running: true,
+      },
+    )
+  } else {
+    (0, self)
+  }
+}
+
+fn positive_delta(now_us : Int, then_us : Int) -> Int {
+  if now_us > then_us {
+    now_us - then_us
+  } else {
+    0
+  }
+}

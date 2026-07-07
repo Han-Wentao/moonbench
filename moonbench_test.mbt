@@ -16,3 +16,22 @@ test "SampleStats handles an empty sample list" {
   inspect(stats.median_us, content="0")
   inspect(stats.stddev_us, content="0")
 }
+
+test "Stopwatch accumulates elapsed time across start and stop" {
+  let watch = @moonbench.Stopwatch::new().start(100).stop(160).start(200)
+  inspect(watch.elapsed(250), content="110")
+  inspect(watch.stop(260).elapsed(999), content="120")
+}
+
+test "Stopwatch lap returns the interval and keeps running" {
+  let watch = @moonbench.Stopwatch::new().start(10)
+  let (lap_us, next) = watch.lap(35)
+  inspect(lap_us, content="25")
+  inspect(next.elapsed(50), content="40")
+}
+
+test "Stopwatch reset clears state" {
+  let watch = @moonbench.Stopwatch::new().start(1).stop(10).reset()
+  inspect(watch.elapsed(100), content="0")
+  inspect(watch.running, content="false")
+}
