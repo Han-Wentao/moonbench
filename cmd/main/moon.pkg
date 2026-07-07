@@ -1,6 +1,6 @@
-// import {
-//   "Han-Wentao/moonbench" @lib,
-// }
+import {
+  "Han-Wentao/moonbench" @moonbench,
+}
 
 options(
   "is-main": true,
