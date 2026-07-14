@@ -6,7 +6,7 @@
 - GitLink 仓库：待在 GitLink 页面同步或创建后填写
 - mooncakes.io 包：https://mooncakes.io/docs/Han-Wentao/moonbench
 - 包名：`Han-Wentao/moonbench`
-- 当前版本：`0.2.0`
+- 当前版本：`0.3.0`
 - 开源协议：MIT
 - 提交记录：已有多次功能、测试、CI、文档提交
 
@@ -32,8 +32,8 @@ moon package
 ## 已完成项
 
 - MoonBit 源码实现。
-- MoonBit 源码、测试和示例总计 4813 行。
-- 55 个单元测试和白盒测试。
+- MoonBit 源码、测试和示例总计 6415 行。
+- 59 个单元测试和白盒测试。
 - 可运行 demo。
 - basic example。
 - GitHub Actions CI。

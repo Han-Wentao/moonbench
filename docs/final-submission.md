@@ -7,7 +7,7 @@
 - GitHub 仓库：https://github.com/Han-Wentao/moonbench
 - mooncakes.io 包：https://mooncakes.io/docs/Han-Wentao/moonbench
 - 包名：`Han-Wentao/moonbench`
-- 当前版本：`0.2.0`
+- 当前版本：`0.3.0`
 - 开源协议：MIT
 
 ## 推荐填写
@@ -35,12 +35,12 @@ C:\Users\42673\Desktop\工作区\随用随清\moonbench\docs\acceptance-matrix.m
 
 ## 已核对证据
 
-- MoonBit 源码、测试和示例：4813 行。
-- 测试数量：55 个，全部通过。
+- MoonBit 源码、测试和示例：6415 行。
+- 测试数量：59 个，全部通过。
 - CI：GitHub Actions 最新 main 分支已通过。
 - demo：`moon run cmd/main` 可输出 suite、baseline、quality gate、scenario catalog、scorecard、reviewer summary、CSV、JSON。
 - basic example：`moon run examples/basic` 可输出基础 suite 与 baseline comparison。
-- 发布包：`_build\publish\Han-Wentao-moonbench-0.2.0.zip`
+- 发布包：`_build\publish\Han-Wentao-moonbench-0.3.0.zip`
 - 源码包：`_build\submission\moonbench-source-submission.zip`
 
 ## 需要本人确认

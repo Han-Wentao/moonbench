@@ -5,8 +5,12 @@ on:
   pull_request:
 
 jobs:
-  moonbit:
+  check:
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [wasm-gc, wasm, js, native]
 
     steps:
       - name: Checkout
@@ -20,8 +24,23 @@ jobs:
           Invoke-Expression $script
           "$env:MOON_HOME\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-      - name: Check
-        run: moon check
+      - name: Check ${{ matrix.target }}
+        run: moon check --target ${{ matrix.target }}
+
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install MoonBit
+        shell: pwsh
+        run: |
+          $env:MOON_HOME = "$env:USERPROFILE\.moon"
+          $script = Invoke-RestMethod 'https://cli.moonbitlang.com/install/powershell.ps1'
+          Invoke-Expression $script
+          "$env:MOON_HOME\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Test
         run: moon test

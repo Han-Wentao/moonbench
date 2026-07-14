@@ -7,7 +7,7 @@
 | 要求 | 官方描述摘要 | 本项目证据 |
 | --- | --- | --- |
 | 参赛对象 | 面向所有对 MoonBit、AI 编程、开源生态和基础软件感兴趣的开发者 | 个人账号 Han-Wentao 已报名 |
-| 项目规模 | 4~10k LOC 为参考有效 MoonBit 代码行数，重质量、边界和可维护性 | 已达到 4813 行 MoonBit 源码、测试和示例 |
+| 项目规模 | 4~10k LOC 为参考有效 MoonBit 代码行数，重质量、边界和可维护性 | 已达到 6415 行 MoonBit 源码、测试和示例 |
 | 有效工作量 | 统计 2026-04-29 后新增 commits、功能、测试、文档、发布改进 | Git 提交记录与本仓库新增内容 |
 | 验收底线 | MoonBit 为主要实现语言，仓库公开可访问 | `moon.mod` 与公开 GitHub 仓库 |
 | README | 提供清晰 README | 中文 `README.md` 与 `README.mbt.md` |
@@ -21,7 +21,7 @@
 
 | 目标 | 量化标准 | 当前策略 |
 | --- | --- | --- |
-| MoonBit 代码规模 | 有效 MoonBit 代码行数 >= 4800 | 已达到 4813 行 |
+| MoonBit 代码规模 | 有效 MoonBit 代码行数 >= 4800 | 已达到 6415 行 |
 | 中文文档 | README、包文档、开发报告、项目方案均为中文长文档 | 保持中文主文档并补充 API 与验收说明 |
 | 功能完整度 | 从单项 benchmark 扩展为报告工具链 | 覆盖 suite、baseline、trend、gate、artifact、format |
 | 测试完整度 | 覆盖核心路径和边界路径 | 单元测试、白盒测试、示例运行、CI |
@@ -46,5 +46,5 @@ moon package
 | mooncakes.io | https://mooncakes.io/docs/Han-Wentao/moonbench |
 | GitLink | 待同步或创建后填写 |
 | 源码包 | `_build/submission/moonbench-source-submission.zip` |
-| 发布包 | `_build/publish/Han-Wentao-moonbench-0.2.0.zip` |
+| 发布包 | `_build/publish/Han-Wentao-moonbench-0.3.0.zip` |
 | 开发报告 | `docs/development-report.md`，最终可导出 PDF |

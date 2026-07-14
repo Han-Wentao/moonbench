@@ -1,3 +1,4 @@
+///|
 /// A compact status badge for README, CI summary, or release notes.
 pub(all) struct StatusBadge {
   label : String
@@ -6,6 +7,7 @@ pub(all) struct StatusBadge {
   link : String
 } derive(Eq, Debug)
 
+///|
 /// Create a status badge.
 pub fn StatusBadge::new(
   label : String,
@@ -16,6 +18,7 @@ pub fn StatusBadge::new(
   { label, message, color, link }
 }
 
+///|
 /// Render a shields.io badge URL.
 pub fn StatusBadge::url(self : StatusBadge) -> String {
   "https://img.shields.io/badge/" +
@@ -26,14 +29,16 @@ pub fn StatusBadge::url(self : StatusBadge) -> String {
   badge_escape(self.color)
 }
 
+///|
 fn badge_escape(value : String) -> String {
   value
-    .replace(old="-", new="--")
-    .replace(old=" ", new="%20")
-    .replace(old="_", new="__")
-    .replace(old="/", new="%2F")
+  .replace(old="-", new="--")
+  .replace(old=" ", new="%20")
+  .replace(old="_", new="__")
+  .replace(old="/", new="%2F")
 }
 
+///|
 /// Render badge Markdown.
 pub fn StatusBadge::to_markdown(self : StatusBadge) -> String {
   let image = "![\{escape_markdown(self.label)}](\{self.url()})"
@@ -44,6 +49,7 @@ pub fn StatusBadge::to_markdown(self : StatusBadge) -> String {
   }
 }
 
+///|
 /// Render badge JSON.
 pub fn StatusBadge::to_json(self : StatusBadge) -> String {
   "{" +
@@ -55,16 +61,19 @@ pub fn StatusBadge::to_json(self : StatusBadge) -> String {
   "}"
 }
 
+///|
 /// A collection of badges.
 pub(all) struct BadgeSet {
   badges : Array[StatusBadge]
 } derive(Eq, Debug)
 
+///|
 /// Create an empty badge set.
 pub fn BadgeSet::new() -> BadgeSet {
   { badges: [] }
 }
 
+///|
 /// Append a badge.
 pub fn BadgeSet::add(self : BadgeSet, badge : StatusBadge) -> BadgeSet {
   let badges = self.badges.copy()
@@ -72,11 +81,13 @@ pub fn BadgeSet::add(self : BadgeSet, badge : StatusBadge) -> BadgeSet {
   { badges, }
 }
 
+///|
 /// Number of badges.
 pub fn BadgeSet::count(self : BadgeSet) -> Int {
   self.badges.length()
 }
 
+///|
 /// Render all badges as one Markdown line.
 pub fn BadgeSet::to_markdown(self : BadgeSet) -> String {
   let mut body = ""
@@ -89,6 +100,7 @@ pub fn BadgeSet::to_markdown(self : BadgeSet) -> String {
   body
 }
 
+///|
 /// Render badges as JSON.
 pub fn BadgeSet::to_json(self : BadgeSet) -> String {
   let mut body = "{\"badges\":["
@@ -101,35 +113,38 @@ pub fn BadgeSet::to_json(self : BadgeSet) -> String {
   body + "]}"
 }
 
+///|
 /// Standard badges for MoonBench.
 pub fn BadgeSet::moonbench_standard() -> BadgeSet {
   BadgeSet::new()
-    .add(StatusBadge::new(
+  .add(
+    StatusBadge::new(
       "MoonBit",
       "0.1.20260703",
       color="blue",
       link="https://www.moonbitlang.com/",
-    ))
-    .add(StatusBadge::new(
+    ),
+  )
+  .add(
+    StatusBadge::new(
       "tests",
       "passing",
       color="brightgreen",
       link="https://github.com/Han-Wentao/moonbench/actions",
-    ))
-    .add(StatusBadge::new(
+    ),
+  )
+  .add(
+    StatusBadge::new(
       "mooncakes",
       "published",
       color="success",
       link="https://mooncakes.io/docs/Han-Wentao/moonbench",
-    ))
-    .add(StatusBadge::new(
-      "license",
-      "MIT",
-      color="green",
-      link="LICENSE",
-    ))
+    ),
+  )
+  .add(StatusBadge::new("license", "MIT", color="green", link="LICENSE"))
 }
 
+///|
 /// A release note entry.
 pub(all) struct ReleaseNoteEntry {
   kind : String
@@ -138,6 +153,7 @@ pub(all) struct ReleaseNoteEntry {
   issue : String
 } derive(Eq, Debug)
 
+///|
 /// Create a release note entry.
 pub fn ReleaseNoteEntry::new(
   kind : String,
@@ -148,6 +164,7 @@ pub fn ReleaseNoteEntry::new(
   { kind, title, detail, issue }
 }
 
+///|
 /// Render release note entry as Markdown bullet.
 pub fn ReleaseNoteEntry::to_markdown(self : ReleaseNoteEntry) -> String {
   let mut body = "- **\{escape_markdown(self.kind)}**: \{escape_markdown(self.title)}"
@@ -160,6 +177,7 @@ pub fn ReleaseNoteEntry::to_markdown(self : ReleaseNoteEntry) -> String {
   body + "\n"
 }
 
+///|
 /// Render release note entry as JSON.
 pub fn ReleaseNoteEntry::to_json(self : ReleaseNoteEntry) -> String {
   "{" +
@@ -170,6 +188,7 @@ pub fn ReleaseNoteEntry::to_json(self : ReleaseNoteEntry) -> String {
   "}"
 }
 
+///|
 /// Release notes for a package version.
 pub(all) struct ReleaseNotes {
   version : String
@@ -177,23 +196,30 @@ pub(all) struct ReleaseNotes {
   entries : Array[ReleaseNoteEntry]
 } derive(Eq, Debug)
 
+///|
 /// Create release notes.
 pub fn ReleaseNotes::new(version : String, date? : String = "") -> ReleaseNotes {
   { version, date, entries: [] }
 }
 
+///|
 /// Append a release note entry.
-pub fn ReleaseNotes::add(self : ReleaseNotes, entry : ReleaseNoteEntry) -> ReleaseNotes {
+pub fn ReleaseNotes::add(
+  self : ReleaseNotes,
+  entry : ReleaseNoteEntry,
+) -> ReleaseNotes {
   let entries = self.entries.copy()
   entries.push(entry)
-  { ..self, entries }
+  { ..self, entries, }
 }
 
+///|
 /// Count entries.
 pub fn ReleaseNotes::count(self : ReleaseNotes) -> Int {
   self.entries.length()
 }
 
+///|
 /// Count entries by kind.
 pub fn ReleaseNotes::count_kind(self : ReleaseNotes, kind : String) -> Int {
   for entry in self.entries; acc = 0 {
@@ -207,6 +233,7 @@ pub fn ReleaseNotes::count_kind(self : ReleaseNotes, kind : String) -> Int {
   }
 }
 
+///|
 /// Render release notes as Markdown.
 pub fn ReleaseNotes::to_markdown(self : ReleaseNotes) -> String {
   let mut body = "## Version \{escape_markdown(self.version)}\n\n"
@@ -220,6 +247,7 @@ pub fn ReleaseNotes::to_markdown(self : ReleaseNotes) -> String {
   body
 }
 
+///|
 /// Render release notes as JSON.
 pub fn ReleaseNotes::to_json(self : ReleaseNotes) -> String {
   let mut body = "{"
@@ -235,41 +263,96 @@ pub fn ReleaseNotes::to_json(self : ReleaseNotes) -> String {
   body + "]}"
 }
 
+///|
 /// Standard release notes for MoonBench 0.2.0.
 pub fn ReleaseNotes::moonbench_0_2_0() -> ReleaseNotes {
   ReleaseNotes::new("0.2.0", date="2026-07-08")
-    .add(ReleaseNoteEntry::new(
+  .add(
+    ReleaseNoteEntry::new(
       "feature",
       "BenchmarkSuite multi-result reporting",
       detail="Render grouped benchmark results as Markdown, JSON, and CSV.",
-    ))
-    .add(ReleaseNoteEntry::new(
+    ),
+  )
+  .add(
+    ReleaseNoteEntry::new(
       "feature",
       "Trend analysis and quality gates",
       detail="Analyze noisy samples and evaluate performance regressions with threshold policies.",
-    ))
-    .add(ReleaseNoteEntry::new(
+    ),
+  )
+  .add(
+    ReleaseNoteEntry::new(
       "feature",
       "Submission artifact helpers",
       detail="Describe contest artifacts, checklists, badges, and generated reports.",
-    ))
-    .add(ReleaseNoteEntry::new(
+    ),
+  )
+  .add(
+    ReleaseNoteEntry::new(
       "feature",
       "Scenario catalog",
       detail="Provide a reusable catalog of benchmark workload scenarios.",
-    ))
-    .add(ReleaseNoteEntry::new(
+    ),
+  )
+  .add(
+    ReleaseNoteEntry::new(
       "test",
       "Expanded test coverage",
       detail="Cover suite, baseline, gate, artifact, and scenario behavior.",
-    ))
-    .add(ReleaseNoteEntry::new(
+    ),
+  )
+  .add(
+    ReleaseNoteEntry::new(
       "docs",
       "Chinese contest documentation",
       detail="Rewrite README, package docs, project proposal, and development report in Chinese.",
-    ))
+    ),
+  )
 }
 
+///|
+/// Standard release notes for MoonBench 0.3.0.
+pub fn ReleaseNotes::moonbench_0_3_0() -> ReleaseNotes {
+  ReleaseNotes::new("0.3.0", date="2026-07-14")
+  .add(
+    ReleaseNoteEntry::new(
+      "feature",
+      "Portable baseline files",
+      detail="Import and export version-controlled name=mean_us baseline documents.",
+    ),
+  )
+  .add(
+    ReleaseNoteEntry::new(
+      "feature",
+      "Baseline parse diagnostics",
+      detail="Report invalid line numbers and reasons while preserving valid entries.",
+    ),
+  )
+  .add(
+    ReleaseNoteEntry::new(
+      "fix",
+      "Standards-compliant JSON escaping",
+      detail="Escape common control characters in generated JSON documents.",
+    ),
+  )
+  .add(
+    ReleaseNoteEntry::new(
+      "test",
+      "Baseline round-trip coverage",
+      detail="Cover duplicate replacement, malformed values, and control characters.",
+    ),
+  )
+  .add(
+    ReleaseNoteEntry::new(
+      "docs",
+      "Baseline workflow documentation",
+      detail="Document local and CI baseline sharing in package and repository guides.",
+    ),
+  )
+}
+
+///|
 /// A summary card for judges and project reviewers.
 pub(all) struct ReviewerSummary {
   project : String
@@ -281,11 +364,12 @@ pub(all) struct ReviewerSummary {
   verification : Array[String]
 } derive(Eq, Debug)
 
+///|
 /// Create a reviewer summary.
 pub fn ReviewerSummary::new(
   project? : String = "MoonBench",
   package_name? : String = "Han-Wentao/moonbench",
-  version? : String = "0.2.0",
+  version? : String = "0.3.0",
   github_url? : String = "https://github.com/Han-Wentao/moonbench",
   package_url? : String = "https://mooncakes.io/docs/Han-Wentao/moonbench",
 ) -> ReviewerSummary {
@@ -300,6 +384,7 @@ pub fn ReviewerSummary::new(
   }
 }
 
+///|
 /// Add a highlight.
 pub fn ReviewerSummary::add_highlight(
   self : ReviewerSummary,
@@ -307,9 +392,10 @@ pub fn ReviewerSummary::add_highlight(
 ) -> ReviewerSummary {
   let highlights = self.highlights.copy()
   highlights.push(highlight)
-  { ..self, highlights }
+  { ..self, highlights, }
 }
 
+///|
 /// Add a verification command or evidence line.
 pub fn ReviewerSummary::add_verification(
   self : ReviewerSummary,
@@ -317,9 +403,10 @@ pub fn ReviewerSummary::add_verification(
 ) -> ReviewerSummary {
   let verification = self.verification.copy()
   verification.push(line)
-  { ..self, verification }
+  { ..self, verification, }
 }
 
+///|
 /// Render reviewer summary as Markdown.
 pub fn ReviewerSummary::to_markdown(self : ReviewerSummary) -> String {
   let mut body = "## \{escape_markdown(self.project)} 评审摘要\n\n"
@@ -338,6 +425,7 @@ pub fn ReviewerSummary::to_markdown(self : ReviewerSummary) -> String {
   body
 }
 
+///|
 /// Render reviewer summary as JSON.
 pub fn ReviewerSummary::to_json(self : ReviewerSummary) -> String {
   "{" +
@@ -351,21 +439,28 @@ pub fn ReviewerSummary::to_json(self : ReviewerSummary) -> String {
   "}"
 }
 
+///|
 /// Standard reviewer summary for MoonBench.
 pub fn ReviewerSummary::moonbench_standard() -> ReviewerSummary {
   ReviewerSummary::new()
-    .add_highlight("MoonBit 原生实现的性能报告工具包")
-    .add_highlight("支持 Stopwatch、SampleStats、BenchmarkRunner、BenchmarkSuite")
-    .add_highlight("支持 Markdown、JSON、CSV 三类输出")
-    .add_highlight("支持历史基线对比、趋势分析和质量门禁")
-    .add_highlight("提供中文 README、开发报告、项目方案和提交清单")
-    .add_verification("moon check")
-    .add_verification("moon test")
-    .add_verification("moon run cmd/main")
-    .add_verification("moon run examples/basic")
-    .add_verification("moon package")
+  .add_highlight("MoonBit 原生实现的性能报告工具包")
+  .add_highlight(
+    "支持 Stopwatch、SampleStats、BenchmarkRunner、BenchmarkSuite",
+  )
+  .add_highlight("支持 Markdown、JSON、CSV 三类输出")
+  .add_highlight("支持历史基线对比、趋势分析和质量门禁")
+  .add_highlight("支持可版本控制的基线文本和逐行解析诊断")
+  .add_highlight(
+    "提供中文 README、开发报告、项目方案和提交清单",
+  )
+  .add_verification("moon check")
+  .add_verification("moon test")
+  .add_verification("moon run cmd/main")
+  .add_verification("moon run examples/basic")
+  .add_verification("moon package")
 }
 
+///|
 /// A GitHub step summary document.
 pub(all) struct GitHubStepSummary {
   title : String
@@ -375,6 +470,7 @@ pub(all) struct GitHubStepSummary {
   gate : GateReport
 } derive(Eq, Debug)
 
+///|
 /// Create a GitHub step summary.
 pub fn GitHubStepSummary::new(
   title? : String = "MoonBench CI Summary",
@@ -386,15 +482,20 @@ pub fn GitHubStepSummary::new(
   { title, badges, reviewer_summary, suite, gate }
 }
 
+///|
 /// Render GitHub step summary Markdown.
 pub fn GitHubStepSummary::to_markdown(self : GitHubStepSummary) -> String {
   "# \{escape_markdown(self.title)}\n\n" +
-  self.badges.to_markdown() + "\n\n" +
-  self.reviewer_summary.to_markdown() + "\n\n" +
-  self.suite.to_markdown() + "\n\n" +
+  self.badges.to_markdown() +
+  "\n\n" +
+  self.reviewer_summary.to_markdown() +
+  "\n\n" +
+  self.suite.to_markdown() +
+  "\n\n" +
   self.gate.to_markdown()
 }
 
+///|
 /// Render GitHub step summary JSON metadata.
 pub fn GitHubStepSummary::to_json(self : GitHubStepSummary) -> String {
   "{" +

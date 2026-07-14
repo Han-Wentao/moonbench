@@ -1,3 +1,4 @@
+///|
 /// One named metric captured from a benchmark run.
 pub(all) struct MetricSnapshot {
   name : String
@@ -9,6 +10,7 @@ pub(all) struct MetricSnapshot {
   samples : Int
 } derive(Eq, Debug)
 
+///|
 /// Create a metric snapshot.
 pub fn MetricSnapshot::new(
   name : String,
@@ -30,6 +32,7 @@ pub fn MetricSnapshot::new(
   }
 }
 
+///|
 /// Create a metric snapshot from a benchmark result.
 pub fn MetricSnapshot::from_result(result : BenchmarkResult) -> MetricSnapshot {
   MetricSnapshot::new(
@@ -43,16 +46,19 @@ pub fn MetricSnapshot::from_result(result : BenchmarkResult) -> MetricSnapshot {
   )
 }
 
+///|
 /// Render a metric snapshot as baseline entry text.
 pub fn MetricSnapshot::to_baseline_line(self : MetricSnapshot) -> String {
   self.name + "=" + "\{self.mean_us}"
 }
 
+///|
 /// Render a metric snapshot as Markdown row.
 pub fn MetricSnapshot::to_markdown_row(self : MetricSnapshot) -> String {
   "| \{escape_markdown(self.name)} | \{self.samples} | \{self.mean_us} | \{self.median_us} | \{self.p90_us} | \{self.p95_us} | \{self.stddev_us} |\n"
 }
 
+///|
 /// Render a metric snapshot as JSON.
 pub fn MetricSnapshot::to_json(self : MetricSnapshot) -> String {
   "{" +
@@ -66,6 +72,7 @@ pub fn MetricSnapshot::to_json(self : MetricSnapshot) -> String {
   "}"
 }
 
+///|
 /// A benchmark snapshot captured at a point in time.
 pub(all) struct BenchmarkSnapshot {
   label : String
@@ -75,6 +82,7 @@ pub(all) struct BenchmarkSnapshot {
   metrics : Array[MetricSnapshot]
 } derive(Eq, Debug)
 
+///|
 /// Create an empty benchmark snapshot.
 pub fn BenchmarkSnapshot::new(
   label? : String = "snapshot",
@@ -85,6 +93,7 @@ pub fn BenchmarkSnapshot::new(
   { label, commit, target, created_at, metrics: [] }
 }
 
+///|
 /// Create a snapshot from a benchmark suite.
 pub fn BenchmarkSnapshot::from_suite(
   suite : BenchmarkSuite,
@@ -94,10 +103,10 @@ pub fn BenchmarkSnapshot::from_suite(
   created_at? : String = "",
 ) -> BenchmarkSnapshot {
   let mut snapshot = BenchmarkSnapshot::new(
-    label=label,
-    commit=commit,
-    target=target,
-    created_at=created_at,
+    label~,
+    commit~,
+    target~,
+    created_at~,
   )
   for result in suite.results {
     snapshot = snapshot.add(MetricSnapshot::from_result(result))
@@ -105,6 +114,7 @@ pub fn BenchmarkSnapshot::from_suite(
   snapshot
 }
 
+///|
 /// Append one metric snapshot.
 pub fn BenchmarkSnapshot::add(
   self : BenchmarkSnapshot,
@@ -112,16 +122,21 @@ pub fn BenchmarkSnapshot::add(
 ) -> BenchmarkSnapshot {
   let metrics = self.metrics.copy()
   metrics.push(metric)
-  { ..self, metrics }
+  { ..self, metrics, }
 }
 
+///|
 /// Number of metrics.
 pub fn BenchmarkSnapshot::count(self : BenchmarkSnapshot) -> Int {
   self.metrics.length()
 }
 
+///|
 /// Find a metric by name.
-pub fn BenchmarkSnapshot::find(self : BenchmarkSnapshot, name : String) -> MetricSnapshot {
+pub fn BenchmarkSnapshot::find(
+  self : BenchmarkSnapshot,
+  name : String,
+) -> MetricSnapshot {
   for metric in self.metrics {
     if metric.name == name {
       return metric
@@ -130,11 +145,16 @@ pub fn BenchmarkSnapshot::find(self : BenchmarkSnapshot, name : String) -> Metri
   MetricSnapshot::new("", 0.0)
 }
 
+///|
 /// Whether a metric exists.
-pub fn BenchmarkSnapshot::contains(self : BenchmarkSnapshot, name : String) -> Bool {
+pub fn BenchmarkSnapshot::contains(
+  self : BenchmarkSnapshot,
+  name : String,
+) -> Bool {
   self.find(name).name != ""
 }
 
+///|
 /// Average mean across metrics.
 pub fn BenchmarkSnapshot::average_mean_us(self : BenchmarkSnapshot) -> Double {
   if self.metrics.length() == 0 {
@@ -148,8 +168,11 @@ pub fn BenchmarkSnapshot::average_mean_us(self : BenchmarkSnapshot) -> Double {
   total / self.metrics.length().to_double()
 }
 
+///|
 /// Convert snapshot to baseline set using mean values.
-pub fn BenchmarkSnapshot::to_baseline_set(self : BenchmarkSnapshot) -> BaselineSet {
+pub fn BenchmarkSnapshot::to_baseline_set(
+  self : BenchmarkSnapshot,
+) -> BaselineSet {
   let mut baselines = BaselineSet::new()
   for metric in self.metrics {
     baselines = baselines.add(metric.name, metric.mean_us)
@@ -157,6 +180,7 @@ pub fn BenchmarkSnapshot::to_baseline_set(self : BenchmarkSnapshot) -> BaselineS
   baselines
 }
 
+///|
 /// Render snapshot as a simple baseline text document.
 pub fn BenchmarkSnapshot::to_baseline_text(self : BenchmarkSnapshot) -> String {
   let mut body = "# MoonBench baseline: " + self.label + "\n"
@@ -172,6 +196,7 @@ pub fn BenchmarkSnapshot::to_baseline_text(self : BenchmarkSnapshot) -> String {
   body
 }
 
+///|
 /// Render snapshot as Markdown.
 pub fn BenchmarkSnapshot::to_markdown(self : BenchmarkSnapshot) -> String {
   let mut body = "## Snapshot \{escape_markdown(self.label)}\n\n"
@@ -180,7 +205,8 @@ pub fn BenchmarkSnapshot::to_markdown(self : BenchmarkSnapshot) -> String {
   body = body + "- Created at: \{escape_markdown(self.created_at)}\n"
   body = body + "- Metrics: \{self.count()}\n"
   body = body + "- Average mean us: \{self.average_mean_us()}\n\n"
-  body = body + "| name | samples | mean_us | median_us | p90_us | p95_us | stddev_us |\n"
+  body = body +
+    "| name | samples | mean_us | median_us | p90_us | p95_us | stddev_us |\n"
   body = body + "| --- | ---: | ---: | ---: | ---: | ---: | ---: |\n"
   for metric in self.metrics {
     body = body + metric.to_markdown_row()
@@ -188,6 +214,7 @@ pub fn BenchmarkSnapshot::to_markdown(self : BenchmarkSnapshot) -> String {
   body
 }
 
+///|
 /// Render snapshot as JSON.
 pub fn BenchmarkSnapshot::to_json(self : BenchmarkSnapshot) -> String {
   let mut body = "{"
@@ -207,6 +234,7 @@ pub fn BenchmarkSnapshot::to_json(self : BenchmarkSnapshot) -> String {
   body + "]}"
 }
 
+///|
 /// One comparison between two metric snapshots.
 pub(all) struct SnapshotDiff {
   name : String
@@ -219,6 +247,7 @@ pub(all) struct SnapshotDiff {
   status : String
 } derive(Eq, Debug)
 
+///|
 /// Create a snapshot diff row.
 pub fn SnapshotDiff::new(
   name : String,
@@ -257,11 +286,13 @@ pub fn SnapshotDiff::new(
   }
 }
 
+///|
 /// Render diff row as Markdown.
 pub fn SnapshotDiff::to_markdown_row(self : SnapshotDiff) -> String {
   "| \{escape_markdown(self.name)} | \{self.before_found} | \{self.after_found} | \{self.before_mean_us} | \{self.after_mean_us} | \{self.delta_us} | \{self.delta_pct} | \{self.status} |\n"
 }
 
+///|
 /// Render diff row as JSON.
 pub fn SnapshotDiff::to_json(self : SnapshotDiff) -> String {
   "{" +
@@ -276,6 +307,7 @@ pub fn SnapshotDiff::to_json(self : SnapshotDiff) -> String {
   "}"
 }
 
+///|
 /// Full diff between two snapshots.
 pub(all) struct SnapshotDiffReport {
   before_label : String
@@ -283,6 +315,7 @@ pub(all) struct SnapshotDiffReport {
   diffs : Array[SnapshotDiff]
 } derive(Eq, Debug)
 
+///|
 /// Compare two snapshots.
 pub fn BenchmarkSnapshot::diff(
   self : BenchmarkSnapshot,
@@ -292,37 +325,46 @@ pub fn BenchmarkSnapshot::diff(
   let diffs : Array[SnapshotDiff] = []
   for before_metric in self.metrics {
     let after_metric = after.find(before_metric.name)
-    diffs.push(SnapshotDiff::new(
-      before_metric.name,
-      true,
-      after_metric.name != "",
-      before_metric.mean_us,
-      after_metric.mean_us,
-      tolerance_pct=tolerance_pct,
-    ))
+    diffs.push(
+      SnapshotDiff::new(
+        before_metric.name,
+        true,
+        after_metric.name != "",
+        before_metric.mean_us,
+        after_metric.mean_us,
+        tolerance_pct~,
+      ),
+    )
   }
   for after_metric in after.metrics {
     if !self.contains(after_metric.name) {
-      diffs.push(SnapshotDiff::new(
-        after_metric.name,
-        false,
-        true,
-        0.0,
-        after_metric.mean_us,
-        tolerance_pct=tolerance_pct,
-      ))
+      diffs.push(
+        SnapshotDiff::new(
+          after_metric.name,
+          false,
+          true,
+          0.0,
+          after_metric.mean_us,
+          tolerance_pct~,
+        ),
+      )
     }
   }
   { before_label: self.label, after_label: after.label, diffs }
 }
 
+///|
 /// Number of diff rows.
 pub fn SnapshotDiffReport::count(self : SnapshotDiffReport) -> Int {
   self.diffs.length()
 }
 
+///|
 /// Count rows by status.
-pub fn SnapshotDiffReport::count_status(self : SnapshotDiffReport, status : String) -> Int {
+pub fn SnapshotDiffReport::count_status(
+  self : SnapshotDiffReport,
+  status : String,
+) -> Int {
   for diff in self.diffs; acc = 0 {
     if diff.status == status {
       continue acc + 1
@@ -334,11 +376,13 @@ pub fn SnapshotDiffReport::count_status(self : SnapshotDiffReport, status : Stri
   }
 }
 
+///|
 /// Whether the diff has any slower rows.
 pub fn SnapshotDiffReport::has_regression(self : SnapshotDiffReport) -> Bool {
   self.count_status("slower") > 0
 }
 
+///|
 /// Whether the diff only contains stable or faster matched rows.
 pub fn SnapshotDiffReport::is_clean(self : SnapshotDiffReport) -> Bool {
   for diff in self.diffs {
@@ -349,6 +393,7 @@ pub fn SnapshotDiffReport::is_clean(self : SnapshotDiffReport) -> Bool {
   true
 }
 
+///|
 /// Render snapshot diff as Markdown.
 pub fn SnapshotDiffReport::to_markdown(self : SnapshotDiffReport) -> String {
   let faster_count = self.count_status("faster")
@@ -365,7 +410,8 @@ pub fn SnapshotDiffReport::to_markdown(self : SnapshotDiffReport) -> String {
   body = body + "- Slower: \{slower_count}\n"
   body = body + "- Added: \{added_count}\n"
   body = body + "- Removed: \{removed_count}\n\n"
-  body = body + "| name | before_found | after_found | before_mean_us | after_mean_us | delta_us | delta_pct | status |\n"
+  body = body +
+    "| name | before_found | after_found | before_mean_us | after_mean_us | delta_us | delta_pct | status |\n"
   body = body + "| --- | --- | --- | ---: | ---: | ---: | ---: | --- |\n"
   for diff in self.diffs {
     body = body + diff.to_markdown_row()
@@ -373,6 +419,7 @@ pub fn SnapshotDiffReport::to_markdown(self : SnapshotDiffReport) -> String {
   body
 }
 
+///|
 /// Render snapshot diff as JSON.
 pub fn SnapshotDiffReport::to_json(self : SnapshotDiffReport) -> String {
   let mut body = "{"
@@ -391,12 +438,13 @@ pub fn SnapshotDiffReport::to_json(self : SnapshotDiffReport) -> String {
   body + "]}"
 }
 
+///|
 /// Convert snapshot diff into a gate report.
 pub fn SnapshotDiffReport::to_gate_report(
   self : SnapshotDiffReport,
   policy? : ThresholdPolicy = ThresholdPolicy::balanced(),
 ) -> GateReport {
-  let mut gate = GateReport::new(policy=policy)
+  let mut gate = GateReport::new(policy~)
   for diff in self.diffs {
     let passed = diff.status != "slower" && diff.status != "removed"
     let severity = if passed { "info" } else { "error" }
@@ -409,14 +457,16 @@ pub fn SnapshotDiffReport::to_gate_report(
     } else {
       "snapshot diff accepted"
     }
-    gate = gate.add(GateDecision::new(
-      diff.name,
-      passed,
-      diff.status,
-      reason,
-      severity=severity,
-      delta_pct=diff.delta_pct,
-    ))
+    gate = gate.add(
+      GateDecision::new(
+        diff.name,
+        passed,
+        diff.status,
+        reason,
+        severity~,
+        delta_pct=diff.delta_pct,
+      ),
+    )
   }
   gate
 }

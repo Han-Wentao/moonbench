@@ -1,6 +1,8 @@
+///|
 test "SampleSeries computes distribution and trend metrics" {
-  let series = @moonbench.SampleSeries::new(name="latency")
-    .add_many([100.0, 102.0, 98.0, 110.0, 105.0])
+  let series = @moonbench.SampleSeries::new(name="latency").add_many([
+    100.0, 102.0, 98.0, 110.0, 105.0,
+  ])
   inspect(series.count(), content="5")
   inspect(series.min(), content="98")
   inspect(series.max(), content="110")
@@ -13,9 +15,12 @@ test "SampleSeries computes distribution and trend metrics" {
   inspect(series.latest_delta(), content="-5")
 }
 
+///|
 test "SampleSeries normalizes and renders artifacts" {
-  let series = @moonbench.SampleSeries::new(name="throughput", unit="ops")
-    .add_many([10.0, 20.0, 30.0])
+  let series = @moonbench.SampleSeries::new(name="throughput", unit="ops").add_many([
+      10.0, 20.0, 30.0,
+    ],
+  )
   let first = series.normalize_to_first()
   let mean = series.normalize_to_mean()
   inspect(first.to_array()[1], content="2")
@@ -24,15 +29,18 @@ test "SampleSeries normalizes and renders artifacts" {
   inspect(series.to_markdown().contains("| 2 | 30 | ops |"), content="true")
 }
 
+///|
 test "SampleSeries moving average keeps insertion order" {
-  let series = @moonbench.SampleSeries::new(name="ma")
-    .add_many([10.0, 20.0, 30.0, 40.0])
+  let series = @moonbench.SampleSeries::new(name="ma").add_many([
+    10.0, 20.0, 30.0, 40.0,
+  ])
   let moving = series.moving_average(2)
   inspect(moving.to_array()[0], content="10")
   inspect(moving.to_array()[1], content="15")
   inspect(moving.to_array()[3], content="35")
 }
 
+///|
 test "TrendAnalysis classifies regression and noise" {
   let regression = @moonbench.SampleSeries::new(name="regression")
     .add_many([100.0, 108.0, 112.0])
@@ -47,6 +55,7 @@ test "TrendAnalysis classifies regression and noise" {
   inspect(noisy.to_markdown().contains("| noisy |"), content="true")
 }
 
+///|
 test "ThresholdPolicy classifies deltas" {
   let policy = @moonbench.ThresholdPolicy::balanced()
   inspect(policy.classify_delta(6.0), content="slower")
@@ -57,6 +66,7 @@ test "ThresholdPolicy classifies deltas" {
   inspect(policy.to_json().contains("\"name\":\"balanced\""), content="true")
 }
 
+///|
 test "GateReport evaluates comparison reports" {
   let runner = @moonbench.BenchmarkRunner::new(warmup=0, iterations=1)
   let suite = @moonbench.BenchmarkSuite::new()
@@ -78,10 +88,12 @@ test "GateReport evaluates comparison reports" {
   inspect(gate.to_json().contains("\"failed\":2"), content="true")
 }
 
+///|
 test "GateReport evaluates sample quality" {
   let runner = @moonbench.BenchmarkRunner::new(warmup=0, iterations=2)
-  let suite = @moonbench.BenchmarkSuite::new()
-    .add(runner.run("stable", () => 10.0))
+  let suite = @moonbench.BenchmarkSuite::new().add(
+    runner.run("stable", () => 10.0),
+  )
   let gate = @moonbench.GateReport::from_suite_samples(
     suite,
     policy=@moonbench.ThresholdPolicy::new(minimum_samples=2, noisy_cv_pct=5.0),

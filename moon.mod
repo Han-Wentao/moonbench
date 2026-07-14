@@ -11,7 +11,7 @@
 
 name = "Han-Wentao/moonbench"
 
-version = "0.2.0"
+version = "0.3.0"
 
 readme = "README.mbt.md"
 
@@ -19,7 +19,7 @@ repository = "https://github.com/Han-Wentao/moonbench"
 
 license = "MIT"
 
-keywords = ["benchmark", "stopwatch", "report", "performance"]
+keywords = [ "benchmark", "stopwatch", "report", "performance" ]
 
 preferred_target = "wasm-gc"
 

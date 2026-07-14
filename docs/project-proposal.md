@@ -71,8 +71,8 @@ MoonBench 当前实现以下能力：
 - 中文开发报告、项目方案、验收矩阵与提交检查清单。
 - 可运行 demo 和 basic example。
 - 自动化测试与 CI。
-- 4813 行 MoonBit 源码、测试和示例。
-- 55 个 MoonBit 测试。
+- 6415 行 MoonBit 源码、测试和示例。
+- 59 个 MoonBit 测试。
 - MIT License。
 
 ## 后续规划

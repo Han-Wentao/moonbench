@@ -1,3 +1,4 @@
+///|
 /// A statistical summary of benchmark samples measured in microseconds.
 pub(all) struct SampleStats {
   count : Int
@@ -10,6 +11,7 @@ pub(all) struct SampleStats {
   stddev_us : Double
 } derive(Eq, Debug)
 
+///|
 /// Create a summary from an array of samples measured in microseconds.
 pub fn SampleStats::from_samples(samples : Array[Double]) -> SampleStats {
   if samples.length() == 0 {
@@ -55,6 +57,7 @@ pub fn SampleStats::from_samples(samples : Array[Double]) -> SampleStats {
   }
 }
 
+///|
 fn median(sorted : Array[Double]) -> Double {
   let count = sorted.length()
   let middle = count / 2
@@ -65,12 +68,13 @@ fn median(sorted : Array[Double]) -> Double {
   }
 }
 
+///|
 fn nearest_rank(sorted : Array[Double], percentile : Int) -> Double {
   let count = sorted.length()
   if count == 0 {
     return 0.0
   }
-  let mut index = ((count * percentile + 99) / 100) - 1
+  let mut index = (count * percentile + 99) / 100 - 1
   if index < 0 {
     index = 0
   }
@@ -80,6 +84,7 @@ fn nearest_rank(sorted : Array[Double], percentile : Int) -> Double {
   sorted[index]
 }
 
+///|
 /// A pure stopwatch state measured in microseconds.
 pub(all) struct Stopwatch {
   elapsed_us : Int
@@ -87,11 +92,13 @@ pub(all) struct Stopwatch {
   running : Bool
 } derive(Eq, Debug)
 
+///|
 /// Create a stopped stopwatch with no elapsed time.
 pub fn Stopwatch::new() -> Stopwatch {
   { elapsed_us: 0, started_at_us: 0, running: false }
 }
 
+///|
 /// Start the stopwatch at `now_us`.
 pub fn Stopwatch::start(self : Stopwatch, now_us : Int) -> Stopwatch {
   if self.running {
@@ -101,6 +108,7 @@ pub fn Stopwatch::start(self : Stopwatch, now_us : Int) -> Stopwatch {
   }
 }
 
+///|
 /// Stop the stopwatch at `now_us`.
 pub fn Stopwatch::stop(self : Stopwatch, now_us : Int) -> Stopwatch {
   if self.running {
@@ -114,11 +122,13 @@ pub fn Stopwatch::stop(self : Stopwatch, now_us : Int) -> Stopwatch {
   }
 }
 
+///|
 /// Reset elapsed time and return to the stopped state.
 pub fn Stopwatch::reset(_self : Stopwatch) -> Stopwatch {
   Stopwatch::new()
 }
 
+///|
 /// Return elapsed microseconds at `now_us` without changing the state.
 pub fn Stopwatch::elapsed(self : Stopwatch, now_us : Int) -> Int {
   if self.running {
@@ -128,6 +138,7 @@ pub fn Stopwatch::elapsed(self : Stopwatch, now_us : Int) -> Int {
   }
 }
 
+///|
 /// Record a lap at `now_us`, returning the lap duration and updated stopwatch.
 pub fn Stopwatch::lap(self : Stopwatch, now_us : Int) -> (Int, Stopwatch) {
   if self.running {
@@ -145,6 +156,7 @@ pub fn Stopwatch::lap(self : Stopwatch, now_us : Int) -> (Int, Stopwatch) {
   }
 }
 
+///|
 fn positive_delta(now_us : Int, then_us : Int) -> Int {
   if now_us > then_us {
     now_us - then_us
@@ -153,6 +165,7 @@ fn positive_delta(now_us : Int, then_us : Int) -> Int {
   }
 }
 
+///|
 /// A named benchmark result.
 pub(all) struct BenchmarkResult {
   name : String
@@ -162,20 +175,23 @@ pub(all) struct BenchmarkResult {
   stats : SampleStats
 } derive(Eq, Debug)
 
+///|
 /// Configuration for repeatable benchmark runs.
 pub(all) struct BenchmarkRunner {
   warmup : Int
   iterations : Int
 } derive(Eq, Debug)
 
+///|
 /// Create a benchmark runner.
-pub fn BenchmarkRunner::new(warmup? : Int = 1, iterations? : Int = 10) -> BenchmarkRunner {
-  {
-    warmup: clamp_non_negative(warmup),
-    iterations: clamp_positive(iterations),
-  }
+pub fn BenchmarkRunner::new(
+  warmup? : Int = 1,
+  iterations? : Int = 10,
+) -> BenchmarkRunner {
+  { warmup: clamp_non_negative(warmup), iterations: clamp_positive(iterations) }
 }
 
+///|
 /// Run a measurement function and summarize the returned microsecond samples.
 pub fn BenchmarkRunner::run(
   self : BenchmarkRunner,
@@ -190,9 +206,16 @@ pub fn BenchmarkRunner::run(
     samples.push(measure())
   }
   let stats = SampleStats::from_samples(samples)
-  { name, warmup: self.warmup, iterations: self.iterations, samples_us: samples, stats }
+  {
+    name,
+    warmup: self.warmup,
+    iterations: self.iterations,
+    samples_us: samples,
+    stats,
+  }
 }
 
+///|
 /// Run and time a benchmark body with the monotonic clock.
 pub fn BenchmarkRunner::run_timed(
   self : BenchmarkRunner,
@@ -206,6 +229,7 @@ pub fn BenchmarkRunner::run_timed(
   })
 }
 
+///|
 fn clamp_non_negative(value : Int) -> Int {
   if value < 0 {
     0
@@ -214,6 +238,7 @@ fn clamp_non_negative(value : Int) -> Int {
   }
 }
 
+///|
 fn clamp_positive(value : Int) -> Int {
   if value < 1 {
     1
@@ -222,6 +247,7 @@ fn clamp_positive(value : Int) -> Int {
   }
 }
 
+///|
 /// Render a benchmark result as compact JSON.
 pub fn BenchmarkResult::to_json(self : BenchmarkResult) -> String {
   "{" +
@@ -232,6 +258,7 @@ pub fn BenchmarkResult::to_json(self : BenchmarkResult) -> String {
   "}"
 }
 
+///|
 /// Render a benchmark result as a Markdown table.
 pub fn BenchmarkResult::to_markdown(self : BenchmarkResult) -> String {
   "| name | count | min_us | max_us | mean_us | median_us | p90_us | p95_us | stddev_us |\n" +
@@ -239,11 +266,13 @@ pub fn BenchmarkResult::to_markdown(self : BenchmarkResult) -> String {
   self.to_markdown_row()
 }
 
+///|
 /// Render one Markdown table row for a benchmark result.
 pub fn BenchmarkResult::to_markdown_row(self : BenchmarkResult) -> String {
   "| \{escape_markdown(self.name)} | \{self.stats.count} | \{self.stats.min_us} | \{self.stats.max_us} | \{self.stats.mean_us} | \{self.stats.median_us} | \{self.stats.p90_us} | \{self.stats.p95_us} | \{self.stats.stddev_us} |\n"
 }
 
+///|
 /// Render sample statistics as JSON.
 pub fn SampleStats::to_json(self : SampleStats) -> String {
   "{" +
@@ -258,14 +287,24 @@ pub fn SampleStats::to_json(self : SampleStats) -> String {
   "}"
 }
 
+///|
 fn escape_json(value : String) -> String {
-  value.replace(old="\\", new="\\\\").replace(old="\"", new="\\\"")
+  value
+  .replace(old="\\", new="\\\\")
+  .replace(old="\"", new="\\\"")
+  .replace(old="\u{08}", new="\\b")
+  .replace(old="\u{0C}", new="\\f")
+  .replace(old="\n", new="\\n")
+  .replace(old="\r", new="\\r")
+  .replace(old="\t", new="\\t")
 }
 
+///|
 fn escape_markdown(value : String) -> String {
   value.replace(old="|", new="\\|")
 }
 
+///|
 /// Comparison between a current benchmark and a baseline mean.
 pub(all) struct BaselineComparison {
   name : String
@@ -275,6 +314,7 @@ pub(all) struct BaselineComparison {
   status : String
 } derive(Eq, Debug)
 
+///|
 /// Compare a result with a baseline mean in microseconds.
 pub fn BenchmarkResult::compare_baseline(
   self : BenchmarkResult,
@@ -303,6 +343,7 @@ pub fn BenchmarkResult::compare_baseline(
   }
 }
 
+///|
 /// Render a baseline comparison as Markdown.
 pub fn BaselineComparison::to_markdown(self : BaselineComparison) -> String {
   "| name | baseline_mean_us | current_mean_us | delta_pct | status |\n" +
@@ -310,6 +351,7 @@ pub fn BaselineComparison::to_markdown(self : BaselineComparison) -> String {
   "| \{escape_markdown(self.name)} | \{self.baseline_mean_us} | \{self.current_mean_us} | \{self.delta_pct} | \{self.status} |\n"
 }
 
+///|
 /// Human-readable metadata attached to a benchmark report.
 pub(all) struct ReportMetadata {
   title : String
@@ -319,6 +361,7 @@ pub(all) struct ReportMetadata {
   note : String
 } derive(Eq, Debug)
 
+///|
 /// Create report metadata with practical defaults.
 pub fn ReportMetadata::new(
   title? : String = "MoonBench Report",
@@ -330,6 +373,7 @@ pub fn ReportMetadata::new(
   { title, package_name, package_version, target, note }
 }
 
+///|
 /// Render metadata as a small Markdown block.
 pub fn ReportMetadata::to_markdown(self : ReportMetadata) -> String {
   let mut body = "## \{escape_markdown(self.title)}\n\n"
@@ -348,6 +392,7 @@ pub fn ReportMetadata::to_markdown(self : ReportMetadata) -> String {
   body + "\n"
 }
 
+///|
 /// Render metadata as compact JSON.
 pub fn ReportMetadata::to_json(self : ReportMetadata) -> String {
   "{" +
@@ -359,12 +404,14 @@ pub fn ReportMetadata::to_json(self : ReportMetadata) -> String {
   "}"
 }
 
+///|
 /// A collection of benchmark results that can be rendered as one report.
 pub(all) struct BenchmarkSuite {
   metadata : ReportMetadata
   results : Array[BenchmarkResult]
 } derive(Eq, Debug)
 
+///|
 /// Create an empty benchmark suite.
 pub fn BenchmarkSuite::new(
   title? : String = "MoonBench Report",
@@ -375,37 +422,47 @@ pub fn BenchmarkSuite::new(
 ) -> BenchmarkSuite {
   {
     metadata: ReportMetadata::new(
-      title=title,
-      package_name=package_name,
-      package_version=package_version,
-      target=target,
-      note=note,
+      title~,
+      package_name~,
+      package_version~,
+      target~,
+      note~,
     ),
     results: [],
   }
 }
 
+///|
 /// Return a new suite with one result appended.
-pub fn BenchmarkSuite::add(self : BenchmarkSuite, result : BenchmarkResult) -> BenchmarkSuite {
+pub fn BenchmarkSuite::add(
+  self : BenchmarkSuite,
+  result : BenchmarkResult,
+) -> BenchmarkSuite {
   let results = self.results.copy()
   results.push(result)
-  { ..self, results }
+  { ..self, results, }
 }
 
+///|
 /// Return a new suite with another suite appended.
-pub fn BenchmarkSuite::append(self : BenchmarkSuite, other : BenchmarkSuite) -> BenchmarkSuite {
+pub fn BenchmarkSuite::append(
+  self : BenchmarkSuite,
+  other : BenchmarkSuite,
+) -> BenchmarkSuite {
   let results = self.results.copy()
   for result in other.results {
     results.push(result)
   }
-  { ..self, results }
+  { ..self, results, }
 }
 
+///|
 /// Count benchmark results in the suite.
 pub fn BenchmarkSuite::count(self : BenchmarkSuite) -> Int {
   self.results.length()
 }
 
+///|
 /// Count all measured iterations in the suite.
 pub fn BenchmarkSuite::total_iterations(self : BenchmarkSuite) -> Int {
   for result in self.results; acc = 0 {
@@ -415,6 +472,7 @@ pub fn BenchmarkSuite::total_iterations(self : BenchmarkSuite) -> Int {
   }
 }
 
+///|
 /// Average the per-result mean values in the suite.
 pub fn BenchmarkSuite::average_mean_us(self : BenchmarkSuite) -> Double {
   if self.results.length() == 0 {
@@ -428,6 +486,7 @@ pub fn BenchmarkSuite::average_mean_us(self : BenchmarkSuite) -> Double {
   total / self.results.length().to_double()
 }
 
+///|
 /// Name of the result with the lowest mean time.
 pub fn BenchmarkSuite::fastest_name(self : BenchmarkSuite) -> String {
   if self.results.length() == 0 {
@@ -444,6 +503,7 @@ pub fn BenchmarkSuite::fastest_name(self : BenchmarkSuite) -> String {
   best_name
 }
 
+///|
 /// Name of the result with the highest mean time.
 pub fn BenchmarkSuite::slowest_name(self : BenchmarkSuite) -> String {
   if self.results.length() == 0 {
@@ -460,6 +520,7 @@ pub fn BenchmarkSuite::slowest_name(self : BenchmarkSuite) -> String {
   worst_name
 }
 
+///|
 /// Render the suite as Markdown with one combined table.
 pub fn BenchmarkSuite::to_markdown(self : BenchmarkSuite) -> String {
   let mut body = self.metadata.to_markdown()
@@ -471,14 +532,17 @@ pub fn BenchmarkSuite::to_markdown(self : BenchmarkSuite) -> String {
     body = body + "- Slowest: `\{escape_markdown(self.slowest_name())}`\n"
   }
   body = body + "\n"
-  body = body + "| name | count | min_us | max_us | mean_us | median_us | p90_us | p95_us | stddev_us |\n"
-  body = body + "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n"
+  body = body +
+    "| name | count | min_us | max_us | mean_us | median_us | p90_us | p95_us | stddev_us |\n"
+  body = body +
+    "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n"
   for result in self.results {
     body = body + result.to_markdown_row()
   }
   body
 }
 
+///|
 /// Render the suite as compact JSON.
 pub fn BenchmarkSuite::to_json(self : BenchmarkSuite) -> String {
   let mut body = "{"
@@ -500,6 +564,7 @@ pub fn BenchmarkSuite::to_json(self : BenchmarkSuite) -> String {
   body + "]}"
 }
 
+///|
 /// Render the suite as CSV for spreadsheet or CI artifact consumption.
 pub fn BenchmarkSuite::to_csv(self : BenchmarkSuite) -> String {
   let mut body = "name,warmup,iterations,count,min_us,max_us,mean_us,median_us,p90_us,p95_us,stddev_us\n"
@@ -509,6 +574,7 @@ pub fn BenchmarkSuite::to_csv(self : BenchmarkSuite) -> String {
   body
 }
 
+///|
 /// Render a benchmark result as JSON including the raw samples.
 pub fn BenchmarkResult::to_json_with_samples(self : BenchmarkResult) -> String {
   "{" +
@@ -520,9 +586,11 @@ pub fn BenchmarkResult::to_json_with_samples(self : BenchmarkResult) -> String {
   "}"
 }
 
+///|
 /// Render a result as one CSV row.
 pub fn BenchmarkResult::to_csv_row(self : BenchmarkResult) -> String {
-  csv_cell(self.name) + "," +
+  csv_cell(self.name) +
+  "," +
   "\{self.warmup}," +
   "\{self.iterations}," +
   "\{self.stats.count}," +
@@ -535,6 +603,7 @@ pub fn BenchmarkResult::to_csv_row(self : BenchmarkResult) -> String {
   "\{self.stats.stddev_us}\n"
 }
 
+///|
 fn samples_to_json(samples : Array[Double]) -> String {
   let mut body = "["
   for i in 0..<samples.length() {
@@ -546,6 +615,7 @@ fn samples_to_json(samples : Array[Double]) -> String {
   body + "]"
 }
 
+///|
 fn csv_cell(value : String) -> String {
   let escaped = value.replace(old="\"", new="\"\"")
   if value.contains(",") || value.contains("\"") || value.contains("\n") {
@@ -555,22 +625,26 @@ fn csv_cell(value : String) -> String {
   }
 }
 
+///|
 /// A named baseline value measured in microseconds.
 pub(all) struct BaselineEntry {
   name : String
   mean_us : Double
 } derive(Eq, Debug)
 
+///|
 /// A simple baseline database for matching results by benchmark name.
 pub(all) struct BaselineSet {
   entries : Array[BaselineEntry]
 } derive(Eq, Debug)
 
+///|
 /// Create an empty baseline set.
 pub fn BaselineSet::new() -> BaselineSet {
   { entries: [] }
 }
 
+///|
 /// Return a new baseline set with one entry appended.
 pub fn BaselineSet::add(
   self : BaselineSet,
@@ -582,11 +656,43 @@ pub fn BaselineSet::add(
   { entries, }
 }
 
+///|
+/// Return a new baseline set with `name` inserted or replaced.
+///
+/// This is useful when loading baseline files where the last declaration wins.
+pub fn BaselineSet::set(
+  self : BaselineSet,
+  name : String,
+  mean_us : Double,
+) -> BaselineSet {
+  let entries = self.entries.copy()
+  for i in 0..<entries.length() {
+    if entries[i].name == name {
+      entries[i] = { name, mean_us }
+      return { entries, }
+    }
+  }
+  entries.push({ name, mean_us })
+  { entries, }
+}
+
+///|
+/// Render the baseline set using the portable `name=mean_us` format.
+pub fn BaselineSet::to_text(self : BaselineSet) -> String {
+  let mut body = "# MoonBench baseline\n"
+  for entry in self.entries {
+    body = body + entry.name + "=" + "\{entry.mean_us}" + "\n"
+  }
+  body
+}
+
+///|
 /// Count entries in the baseline set.
 pub fn BaselineSet::count(self : BaselineSet) -> Int {
   self.entries.length()
 }
 
+///|
 /// Compare every benchmark in a suite with matching baselines.
 pub fn BaselineSet::compare_suite(
   self : BaselineSet,
@@ -597,7 +703,7 @@ pub fn BaselineSet::compare_suite(
   for result in suite.results {
     let (found, baseline_mean_us) = self.find(result.name)
     if found {
-      let comparison = result.compare_baseline(baseline_mean_us, tolerance_pct=tolerance_pct)
+      let comparison = result.compare_baseline(baseline_mean_us, tolerance_pct~)
       comparisons.push({
         name: result.name,
         baseline_found: true,
@@ -620,6 +726,7 @@ pub fn BaselineSet::compare_suite(
   ComparisonReport::from_comparisons(comparisons)
 }
 
+///|
 fn BaselineSet::find(self : BaselineSet, name : String) -> (Bool, Double) {
   for entry in self.entries {
     if entry.name == name {
@@ -629,6 +736,7 @@ fn BaselineSet::find(self : BaselineSet, name : String) -> (Bool, Double) {
   (false, 0.0)
 }
 
+///|
 /// One comparison row that preserves missing-baseline status.
 pub(all) struct NamedComparison {
   name : String
@@ -639,6 +747,7 @@ pub(all) struct NamedComparison {
   status : String
 } derive(Eq, Debug)
 
+///|
 /// Summary of baseline comparison status counts.
 pub(all) struct TrendSummary {
   total : Int
@@ -650,14 +759,18 @@ pub(all) struct TrendSummary {
   worst_delta_pct : Double
 } derive(Eq, Debug)
 
+///|
 /// A full baseline comparison report.
 pub(all) struct ComparisonReport {
   comparisons : Array[NamedComparison]
   summary : TrendSummary
 } derive(Eq, Debug)
 
+///|
 /// Build a comparison report from rows.
-pub fn ComparisonReport::from_comparisons(comparisons : Array[NamedComparison]) -> ComparisonReport {
+pub fn ComparisonReport::from_comparisons(
+  comparisons : Array[NamedComparison],
+) -> ComparisonReport {
   let mut faster = 0
   let mut stable = 0
   let mut slower = 0
@@ -704,6 +817,7 @@ pub fn ComparisonReport::from_comparisons(comparisons : Array[NamedComparison]) 
   }
 }
 
+///|
 /// Render a comparison report as Markdown.
 pub fn ComparisonReport::to_markdown(self : ComparisonReport) -> String {
   let mut body = "## Baseline Comparison\n\n"
@@ -714,7 +828,8 @@ pub fn ComparisonReport::to_markdown(self : ComparisonReport) -> String {
   body = body + "- Missing baseline: \{self.summary.missing_baseline}\n"
   body = body + "- Best delta pct: \{self.summary.best_delta_pct}\n"
   body = body + "- Worst delta pct: \{self.summary.worst_delta_pct}\n\n"
-  body = body + "| name | baseline_found | baseline_mean_us | current_mean_us | delta_pct | status |\n"
+  body = body +
+    "| name | baseline_found | baseline_mean_us | current_mean_us | delta_pct | status |\n"
   body = body + "| --- | --- | ---: | ---: | ---: | --- |\n"
   for comparison in self.comparisons {
     body = body + comparison.to_markdown_row()
@@ -722,11 +837,13 @@ pub fn ComparisonReport::to_markdown(self : ComparisonReport) -> String {
   body
 }
 
+///|
 /// Render one comparison row as Markdown.
 pub fn NamedComparison::to_markdown_row(self : NamedComparison) -> String {
   "| \{escape_markdown(self.name)} | \{self.baseline_found} | \{self.baseline_mean_us} | \{self.current_mean_us} | \{self.delta_pct} | \{self.status} |\n"
 }
 
+///|
 /// Render a comparison report as compact JSON.
 pub fn ComparisonReport::to_json(self : ComparisonReport) -> String {
   let mut body = "{"
@@ -741,6 +858,7 @@ pub fn ComparisonReport::to_json(self : ComparisonReport) -> String {
   body + "]}"
 }
 
+///|
 /// Render trend summary as compact JSON.
 pub fn TrendSummary::to_json(self : TrendSummary) -> String {
   "{" +
@@ -754,6 +872,7 @@ pub fn TrendSummary::to_json(self : TrendSummary) -> String {
   "}"
 }
 
+///|
 /// Render one named comparison as compact JSON.
 pub fn NamedComparison::to_json(self : NamedComparison) -> String {
   "{" +
@@ -766,12 +885,14 @@ pub fn NamedComparison::to_json(self : NamedComparison) -> String {
   "}"
 }
 
+///|
 /// Validation result for benchmark naming and report hygiene.
 pub(all) struct ValidationIssue {
   ok : Bool
   message : String
 } derive(Eq, Debug)
 
+///|
 /// Validate benchmark names before they appear in reports or CI artifacts.
 pub fn validate_benchmark_name(name : String) -> ValidationIssue {
   if name == "" {
@@ -783,7 +904,11 @@ pub fn validate_benchmark_name(name : String) -> ValidationIssue {
   { ok: true, message: "ok" }
 }
 
+///|
 /// Normalize a benchmark name for compact console reports.
 pub fn normalize_benchmark_name(name : String) -> String {
-  name.replace(old="\n", new=" ").replace(old="\r", new=" ").replace(old="|", new="/")
+  name
+  .replace(old="\n", new=" ")
+  .replace(old="\r", new=" ")
+  .replace(old="|", new="/")
 }
