@@ -50,3 +50,8 @@ jobs:
 
       - name: Run basic example
         run: moon run examples/basic
+
+      - name: Cross-check statistics with Python reference
+        run: |
+          python scripts/verify_statistics.py --target wasm-gc
+          python scripts/verify_statistics.py --target js

@@ -64,7 +64,21 @@ fn median(sorted : Array[Double]) -> Double {
   if count % 2 == 1 {
     sorted[middle]
   } else {
-    (sorted[middle - 1] + sorted[middle]) / 2.0
+    let a = sorted[middle - 1]
+    let b = sorted[middle]
+    // Opposite signs cannot overflow their sum. For same-sign finite values,
+    // a + (b-a)/2 avoids overflow without halving equal subnormal values.
+    if a.is_inf() || b.is_inf() {
+      (a + b) / 2.0
+    } else if (a >= 0.0 && b >= 0.0) || (a <= 0.0 && b <= 0.0) {
+      if a == b {
+        a
+      } else {
+        a + (b - a) / 2.0
+      }
+    } else {
+      (a + b) / 2.0
+    }
   }
 }
 
@@ -74,13 +88,15 @@ fn nearest_rank(sorted : Array[Double], percentile : Int) -> Double {
   if count == 0 {
     return 0.0
   }
-  let mut index = (count * percentile + 99) / 100 - 1
-  if index < 0 {
-    index = 0
+  if percentile <= 0 {
+    return sorted[0]
   }
-  if index >= count {
-    index = count - 1
+  if percentile >= 100 {
+    return sorted[count - 1]
   }
+  // ceil(count * percentile / 100) without overflowing a 32-bit Int.
+  let rank = count / 100 * percentile + (count % 100 * percentile + 99) / 100
+  let index = rank - 1
   sorted[index]
 }
 
